@@ -195,15 +195,9 @@ public class SingleColorActivity extends AppCompatActivity {
                         countOfRainbowsView.setText(String.valueOf(buf));
                     }
                     BluetoothManager.send(("sh" + buf).getBytes());
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, countOfRainbowsView);
                     return true;
                 }
-                return false;
-            }
-        });
-        countOfRainbowsView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, countOfRainbowsView);
                 return false;
             }
         });
@@ -218,15 +212,9 @@ public class SingleColorActivity extends AppCompatActivity {
                         tailSizeView.setText(String.valueOf(buf));
                     }
                     BluetoothManager.send(("sg" + buf).getBytes());
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, tailSizeView);
                     return true;
                 }
-                return false;
-            }
-        });
-        tailSizeView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, tailSizeView);
                 return false;
             }
         });
@@ -241,15 +229,9 @@ public class SingleColorActivity extends AppCompatActivity {
                         gapView.setText(String.valueOf(buf));
                     }
                     BluetoothManager.send(("sf" + buf).getBytes());
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, gapView);
                     return true;
                 }
-                return false;
-            }
-        });
-        gapView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, gapView);
                 return false;
             }
         });
@@ -280,15 +262,9 @@ public class SingleColorActivity extends AppCompatActivity {
                     }
                     BluetoothManager.send(("se" + buf).getBytes());
                     valueSeekBar.setProgress(buf);
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, valueView);
                     return true;
                 }
-                return false;
-            }
-        });
-        valueView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, valueView);
                 return false;
             }
         });
@@ -319,15 +295,9 @@ public class SingleColorActivity extends AppCompatActivity {
                     }
                     BluetoothManager.send(("sd" + buf).getBytes());
                     saturationSeekBar.setProgress(buf);
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, saturationView);
                     return true;
                 }
-                return false;
-            }
-        });
-        saturationView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, saturationView);
                 return false;
             }
         });
@@ -358,15 +328,9 @@ public class SingleColorActivity extends AppCompatActivity {
                     }
                     BluetoothManager.send(("sc" + buf).getBytes());
                     hueSeekBar.setProgress(buf);
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, hueView);
                     return true;
                 }
-                return false;
-            }
-        });
-        hueView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, hueView);
                 return false;
             }
         });
@@ -397,15 +361,9 @@ public class SingleColorActivity extends AppCompatActivity {
                     }
                     BluetoothManager.send(("sb" + buf).getBytes());
                     speedSeekBar.setProgress(buf);
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, speedView);
                     return true;
                 }
-                return false;
-            }
-        });
-        speedView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, speedView);
                 return false;
             }
         });
@@ -436,15 +394,9 @@ public class SingleColorActivity extends AppCompatActivity {
                     }
                     BluetoothManager.send(("sa" + buf).getBytes());
                     brightnessSeekBar.setProgress(buf);
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, brightnessView);
                     return true;
                 }
-                return false;
-            }
-        });
-        brightnessView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                ProjectManager.hideKeyboard(SingleColorActivity.this, brightnessView);
                 return false;
             }
         });
