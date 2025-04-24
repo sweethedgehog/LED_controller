@@ -19,10 +19,10 @@
         app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/profile_text_view_single_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Режим: Single color"
+        android:text="Профиль:"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +41,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.045"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_text_view_single_color" />
 
     <SeekBar
         android:id="@+id/brightness_seek_bar_single_color"
@@ -54,7 +54,7 @@
         app:layout_constraintEnd_toStartOf="@+id/brightness_seek_bar_view_single_color"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/textView5"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_text_view_single_color" />
 
     <SeekBar
         android:id="@+id/speed_seek_bar_single_color"
@@ -182,11 +182,12 @@
         android:layout_marginTop="18dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.698"
         app:layout_constraintStart_toEndOf="@+id/brightness_seek_bar_single_color"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_text_view_single_color" />
 
     <EditText
         android:id="@+id/speed_seek_bar_view_single_color"
@@ -195,6 +196,7 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.513"
@@ -208,6 +210,7 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.513"
@@ -221,6 +224,7 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.513"
@@ -234,6 +238,7 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.513"
@@ -247,6 +252,7 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -260,6 +266,7 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -273,6 +280,7 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -334,7 +342,7 @@
         app:layout_constraintBottom_toTopOf="@+id/brightness_seek_bar_view_single_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.984"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
+        app:layout_constraintStart_toEndOf="@+id/profile_text_view_single_color"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_menu_sort_by_size" />
 
@@ -343,13 +351,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
         app:layout_constraintBottom_toTopOf="@+id/brightness_seek_bar_view_single_color"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.523"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
+        app:layout_constraintEnd_toStartOf="@+id/modes_button"
+        app:layout_constraintHorizontal_bias="0.846"
+        app:layout_constraintStart_toEndOf="@+id/profile_text_view_single_color"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@android:drawable/ic_menu_sort_by_size" />
+
+    <ImageButton
+        android:id="@+id/delete_profile_button_single_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toStartOf="@+id/profiles_button"
+        app:layout_constraintHorizontal_bias="0.875"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_delete" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

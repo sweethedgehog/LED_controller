@@ -1,21 +1,29 @@
 package com.example.ledcontroller;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
+import javax.security.auth.login.LoginException;
 
 public class SingleColorActivity extends AppCompatActivity {
     private static final String TAG = "SingleColor";
@@ -25,7 +33,9 @@ public class SingleColorActivity extends AppCompatActivity {
     private static int brightness, speed;
     private static int hue, saturation, value, gap, tailSize, rainbowCount;
     private static boolean twoSides, direction, isRunningLight, isRainbow;
+    private static boolean isChangingProfile = false;
 
+    private TextView currProfileView;
     private EditText brightnessView;
     private SeekBar brightnessSeekBar;
     private EditText speedView;
@@ -45,6 +55,7 @@ public class SingleColorActivity extends AppCompatActivity {
     private Switch isRainbowView;
     private ImageButton modesButton;
     private ImageButton profilesButton;
+    private ImageButton deleteButton;
 
     @Override
     protected void onResume(){
@@ -53,11 +64,79 @@ public class SingleColorActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        BluetoothManager.disconnect();
+        ProjectManager.wasConnected = false;
+        profiles.clear();
+        profilesNames.clear();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_color);
-        setProfile(currProfile);
+        currProfileView = findViewById(R.id.profile_text_view_single_color);
         modesButton = findViewById(R.id.modes_button);
+        profilesButton = findViewById(R.id.profiles_button);
+        deleteButton = findViewById(R.id.delete_profile_button_single_color);
+        setProfile(currProfile);
+
+        brightnessView = findViewById(R.id.brightness_seek_bar_view_single_color);
+        brightnessSeekBar = findViewById(R.id.brightness_seek_bar_single_color);
+        speedView = findViewById(R.id.speed_seek_bar_view_single_color);
+        speedSeekBar = findViewById(R.id.speed_seek_bar_single_color);
+        hueView = findViewById(R.id.hue_seek_bar_view_single_color);
+        hueSeekBar = findViewById(R.id.hue_seek_bar_single_color);
+        saturationView = findViewById(R.id.saturation_seek_bar_view_single_color);
+        saturationSeekBar = findViewById(R.id.saturation_seek_bar_single_color);
+        valueView = findViewById(R.id.value_seek_bar_view_single_color);
+        valueSeekBar = findViewById(R.id.value_seek_bar_single_color);
+        gapView = findViewById(R.id.gap_seek_bar_view_single_color);
+        tailSizeView = findViewById(R.id.tail_size_seek_bar_view_single_color);
+        countOfRainbowsView = findViewById(R.id.count_of_rainbows_seek_bar_view_single_color);
+        twoSidesView = findViewById(R.id.two_sides_single_color_toggle);
+        directionView = findViewById(R.id.direction_single_color_toggle);
+        isRunningLightView = findViewById(R.id.is_running_light_single_color_toggle);
+        isRainbowView = findViewById(R.id.is_rainbow_single_color_toggle);
+        updateAll();
+        listenerInit();
+    }
+    private void listenerInit(){
+        profilesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ProjectManager.showPopupMenu(SingleColorActivity.this, profilesButton, profilesNames, new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        if (profilesNames.get(i).equals("Добавить")){
+                            ProjectManager.showInputDialog(SingleColorActivity.this, new BluetoothFunc() {
+                                @Override
+                                public void run(String s) {
+                                    BluetoothManager.send(("pn" + s).getBytes());
+                                    Toast.makeText(SingleColorActivity.this, "Создан новый профиль \""
+                                            + s + "\"", Toast.LENGTH_SHORT).show();
+                                    int[] buf = Arrays.copyOf(profiles.get(currProfile), profiles.get(currProfile).length);
+                                    addPName(s);
+                                    profiles.put(s, buf);
+                                    saveProfileSettings(currProfile);
+                                    currProfile = s;
+                                    setProfile(currProfile);
+                                    updateAll();
+                                }
+                            });
+                            return;
+                        }
+                        saveProfileSettings(currProfile);
+                        currProfile = profilesNames.get(i);
+                        Log.e(TAG, currProfile);
+                        setProfile(currProfile);
+                        updateAll();
+                        BluetoothManager.send(("ps" + currProfile).getBytes());
+                    }
+                });
+            }
+        });
         modesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,156 +148,139 @@ public class SingleColorActivity extends AppCompatActivity {
                 });
             }
         });
-        profilesButton = findViewById(R.id.profiles_button);
-        profilesButton.setOnClickListener(new View.OnClickListener() {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ProjectManager.showPopupMenu(SingleColorActivity.this, profilesButton, profilesNames, new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        currProfile = profilesNames.get(i);
-                        Log.e(TAG, currProfile);
-                        setProfile(currProfile);
-                        updateAll();
-                        BluetoothManager.send(("ps" + currProfile).getBytes());
-                    }
-                });
+                BluetoothManager.send(("pd" + currProfile).getBytes());
+                profilesNames.remove(currProfile);
+                profiles.remove(currProfile);
+                currProfile = "default";
+                setProfile(currProfile);
+                updateAll();
             }
         });
-
-        brightnessView = findViewById(R.id.brightness_seek_bar_view_single_color);
-        brightnessView.setOnKeyListener(new View.OnKeyListener() {
+        directionView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (isChangingProfile) return;
+                direction = b;
+                BluetoothManager.send(("sj" + (direction ? 1 : 0)).getBytes());
+            }
+        });
+        isRunningLightView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (isChangingProfile) return;
+                isRunningLight = b;
+                BluetoothManager.send(("sk" + (isRunningLight ? 1 : 0)).getBytes());
+            }
+        });
+        isRainbowView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (isChangingProfile) return;
+                isRainbow = b;
+                BluetoothManager.send(("sl" + (isRainbow ? 1 : 0)).getBytes());
+            }
+        });
+        twoSidesView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (isChangingProfile) return;
+                twoSides = b;
+                BluetoothManager.send(("si" + (twoSides ? 1 : 0)).getBytes());
+            }
+        });
+        countOfRainbowsView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    int buf = Integer.parseInt(String.valueOf(brightnessView.getText()));
+                    ProjectManager.hideKeyboard(SingleColorActivity.this, countOfRainbowsView);
+                    if (isChangingProfile) return false;
+                    int buf = Integer.parseInt(String.valueOf(countOfRainbowsView.getText()));
                     if (buf > 255) {
                         buf = 255;
-                        brightnessView.setText(String.valueOf(buf));
+                        countOfRainbowsView.setText(String.valueOf(buf));
                     }
-                    BluetoothManager.send(("sa" + buf).getBytes());
-                    brightnessSeekBar.setProgress(buf);
+                    BluetoothManager.send(("sh" + buf).getBytes());
                     return true;
                 }
                 return false;
             }
         });
-        brightnessSeekBar = findViewById(R.id.brightness_seek_bar_single_color);
-        brightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        countOfRainbowsView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                brightnessView.setText(String.valueOf(brightnessSeekBar.getProgress()));
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                brightness = brightnessSeekBar.getProgress();
-                BluetoothManager.send(("sa" + brightness).getBytes());
-            }
-        });
-        speedView = findViewById(R.id.speed_seek_bar_view_single_color);
-        speedView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    int buf = Integer.parseInt(String.valueOf(speedView.getText()));
-                    if (buf > 200) {
-                        buf = 200;
-                        speedView.setText(String.valueOf(buf));
-                    }
-                    BluetoothManager.send(("sb" + buf).getBytes());
-                    speedSeekBar.setProgress(buf);
-                    return true;
-                }
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, countOfRainbowsView);
                 return false;
             }
         });
-        speedSeekBar = findViewById(R.id.speed_seek_bar_single_color);
-        speedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                speedView.setText(String.valueOf(speedSeekBar.getProgress()));
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                speed = speedSeekBar.getProgress();
-                BluetoothManager.send(("sb" + speed).getBytes());
-            }
-        });
-        hueView = findViewById(R.id.hue_seek_bar_view_single_color);
-        hueView.setOnKeyListener(new View.OnKeyListener() {
+        tailSizeView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    int buf = Integer.parseInt(String.valueOf(hueView.getText()));
+                    if (isChangingProfile) return false;
+                    int buf = Integer.parseInt(String.valueOf(tailSizeView.getText()));
                     if (buf > 255) {
                         buf = 255;
-                        hueView.setText(String.valueOf(buf));
+                        tailSizeView.setText(String.valueOf(buf));
                     }
-                    BluetoothManager.send(("sc" + buf).getBytes());
-                    hueSeekBar.setProgress(buf);
+                    BluetoothManager.send(("sg" + buf).getBytes());
                     return true;
                 }
                 return false;
             }
         });
-        hueSeekBar = findViewById(R.id.hue_seek_bar_single_color);
-        hueSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        tailSizeView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                hueView.setText(String.valueOf(hueSeekBar.getProgress()));
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                hue = Integer.parseInt(String.valueOf(hueView.getText()));
-                BluetoothManager.send(("sc" + hue).getBytes());
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, tailSizeView);
+                return false;
             }
         });
-        saturationView = findViewById(R.id.saturation_seek_bar_view_single_color);
-        saturationView.setOnKeyListener(new View.OnKeyListener() {
+        gapView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    int buf = Integer.parseInt(String.valueOf(saturationView.getText()));
+                    if (isChangingProfile) return false;
+                    int buf = Integer.parseInt(String.valueOf(gapView.getText()));
                     if (buf > 255) {
                         buf = 255;
-                        saturationView.setText(String.valueOf(buf));
+                        gapView.setText(String.valueOf(buf));
                     }
-                    BluetoothManager.send(("sd" + buf).getBytes());
-                    saturationSeekBar.setProgress(buf);
+                    BluetoothManager.send(("sf" + buf).getBytes());
                     return true;
                 }
                 return false;
             }
         });
-        saturationSeekBar = findViewById(R.id.saturation_seek_bar_single_color);
-        saturationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        gapView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, gapView);
+                return false;
+            }
+        });
+        valueSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                saturationView.setText(String.valueOf(saturationSeekBar.getProgress()));
+                valueView.setText(String.valueOf(valueSeekBar.getProgress()));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                saturation = saturationSeekBar.getProgress();
-                BluetoothManager.send(("sd" + saturation).getBytes());
+                if (isChangingProfile) return;
+                value = valueSeekBar.getProgress();
+                BluetoothManager.send(("se" + value).getBytes());
             }
         });
-        valueView = findViewById(R.id.value_seek_bar_view_single_color);
         valueView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
+                    if (isChangingProfile) return false;
                     int buf = Integer.parseInt(String.valueOf(valueView.getText()));
                     if (buf > 200) {
                         buf = 200;
@@ -231,112 +293,185 @@ public class SingleColorActivity extends AppCompatActivity {
                 return false;
             }
         });
-        valueSeekBar = findViewById(R.id.value_seek_bar_single_color);
-        valueSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        valueView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, valueView);
+                return false;
+            }
+        });
+        saturationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                valueView.setText(String.valueOf(valueSeekBar.getProgress()));
+                saturationView.setText(String.valueOf(saturationSeekBar.getProgress()));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                value = valueSeekBar.getProgress();
-                BluetoothManager.send(("se" + value).getBytes());
+                if (isChangingProfile) return;
+                saturation = saturationSeekBar.getProgress();
+                BluetoothManager.send(("sd" + saturation).getBytes());
             }
         });
-        gapView = findViewById(R.id.gap_seek_bar_view_single_color);
-        gapView.setOnKeyListener(new View.OnKeyListener() {
+        saturationView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    int buf = Integer.parseInt(String.valueOf(gapView.getText()));
+                    if (isChangingProfile) return false;
+                    int buf = Integer.parseInt(String.valueOf(saturationView.getText()));
                     if (buf > 255) {
                         buf = 255;
-                        gapView.setText(String.valueOf(buf));
+                        saturationView.setText(String.valueOf(buf));
                     }
-                    BluetoothManager.send(("sf" + buf).getBytes());
+                    BluetoothManager.send(("sd" + buf).getBytes());
+                    saturationSeekBar.setProgress(buf);
                     return true;
                 }
                 return false;
             }
         });
-        tailSizeView = findViewById(R.id.tail_size_seek_bar_view_single_color);
-        tailSizeView.setOnKeyListener(new View.OnKeyListener() {
+        saturationView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, saturationView);
+                return false;
+            }
+        });
+        hueSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                hueView.setText(String.valueOf(hueSeekBar.getProgress()));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (isChangingProfile) return;
+                hue = Integer.parseInt(String.valueOf(hueView.getText()));
+                BluetoothManager.send(("sc" + hue).getBytes());
+            }
+        });
+        hueView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    int buf = Integer.parseInt(String.valueOf(tailSizeView.getText()));
+                    if (isChangingProfile) return false;
+                    int buf = Integer.parseInt(String.valueOf(hueView.getText()));
                     if (buf > 255) {
                         buf = 255;
-                        tailSizeView.setText(String.valueOf(buf));
+                        hueView.setText(String.valueOf(buf));
                     }
-                    BluetoothManager.send(("sg" + buf).getBytes());
+                    BluetoothManager.send(("sc" + buf).getBytes());
+                    hueSeekBar.setProgress(buf);
                     return true;
                 }
                 return false;
             }
         });
-        countOfRainbowsView = findViewById(R.id.count_of_rainbows_seek_bar_view_single_color);
-        countOfRainbowsView.setOnKeyListener(new View.OnKeyListener() {
+        hueView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, hueView);
+                return false;
+            }
+        });
+        speedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                speedView.setText(String.valueOf(speedSeekBar.getProgress()));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (isChangingProfile) return;
+                speed = speedSeekBar.getProgress();
+                BluetoothManager.send(("sb" + speed).getBytes());
+            }
+        });
+        speedView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    int buf = Integer.parseInt(String.valueOf(countOfRainbowsView.getText()));
-                    if (buf > 255) {
-                        buf = 255;
-                        countOfRainbowsView.setText(String.valueOf(buf));
+                    if (isChangingProfile) return false;
+                    int buf = Integer.parseInt(String.valueOf(speedView.getText()));
+                    if (buf > 200) {
+                        buf = 200;
+                        speedView.setText(String.valueOf(buf));
                     }
-                    BluetoothManager.send(("sh" + buf).getBytes());
+                    BluetoothManager.send(("sb" + buf).getBytes());
+                    speedSeekBar.setProgress(buf);
                     return true;
                 }
                 return false;
             }
         });
-        twoSidesView = findViewById(R.id.two_sides_single_color_toggle);
-        twoSidesView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        speedView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                twoSides = b;
-                BluetoothManager.send(("si" + (twoSides ? 1 : 0)).getBytes());
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, speedView);
+                return false;
             }
         });
-        directionView = findViewById(R.id.direction_single_color_toggle);
-        directionView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        brightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                direction = b;
-                BluetoothManager.send(("sj" + (direction ? 1 : 0)).getBytes());
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                brightnessView.setText(String.valueOf(brightnessSeekBar.getProgress()));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (isChangingProfile) return;
+                brightness = brightnessSeekBar.getProgress();
+                BluetoothManager.send(("sa" + brightness).getBytes());
             }
         });
-        isRunningLightView = findViewById(R.id.is_running_light_single_color_toggle);
-        isRunningLightView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        brightnessView.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                isRunningLight = b;
-                BluetoothManager.send(("sk" + (isRunningLight ? 1 : 0)).getBytes());
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
+                    if (isChangingProfile) return false;
+                    int buf = Integer.parseInt(String.valueOf(brightnessView.getText()));
+                    if (buf > 255) {
+                        buf = 255;
+                        brightnessView.setText(String.valueOf(buf));
+                    }
+                    BluetoothManager.send(("sa" + buf).getBytes());
+                    brightnessSeekBar.setProgress(buf);
+                    return true;
+                }
+                return false;
             }
         });
-        isRainbowView = findViewById(R.id.is_rainbow_single_color_toggle);
-        isRainbowView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        brightnessView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                isRainbow = b;
-                BluetoothManager.send(("sl" + (isRainbow ? 1 : 0)).getBytes());
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                ProjectManager.hideKeyboard(SingleColorActivity.this, brightnessView);
+                return false;
             }
         });
-        updateAll();
+    }
+    private static void addPName(String name){
+        profilesNames.remove("Добавить");
+        profilesNames.add(name);
+        profilesNames.add("Добавить");
     }
     public static void setProfileSettings(String profileName, byte[] settings){
-        profilesNames.add(profileName);
+        addPName(profileName);
+        Log.e(TAG, profileName);
         int[] buf = new int[settings.length];
         for (int i = 0; i < settings.length; ++i){
             buf[i] = (settings[i] + 256) % 256;
         }
         profiles.put(profileName, buf);
     }
-    private static void setProfile(String profileName){
+    private void setProfile(String profileName){
         int[] buf = profiles.get(profileName);
         brightness = buf[0];
         speed = buf[1];
@@ -350,8 +485,26 @@ public class SingleColorActivity extends AppCompatActivity {
         direction = buf[9] == 1;
         isRunningLight = buf[10] == 1;
         isRainbow = buf[11] == 1;
+        currProfileView.setText("Профиль: " + profileName);
+    }
+    private static void saveProfileSettings(String profileName){
+        int[] buf = new int[profiles.get(profileName).length];
+        buf[0] = brightness;
+        buf[1] = speed;
+        buf[2] = hue;
+        buf[3] = saturation;
+        buf[4] = value;
+        buf[5] = gap;
+        buf[6] = tailSize;
+        buf[7] = rainbowCount;
+        buf[8] = twoSides ? 1 : 0;
+        buf[9] = direction ? 1 : 0;
+        buf[10] = isRunningLight ? 1 : 0;
+        buf[11] = isRainbow ? 1 : 0;
+        profiles.put(currProfile, buf);
     }
     private void updateAll(){
+        isChangingProfile = true;
         brightnessView.setText(String.valueOf(brightness));
         brightnessSeekBar.setProgress(brightness);
         speedView.setText(String.valueOf(speed));
@@ -369,5 +522,10 @@ public class SingleColorActivity extends AppCompatActivity {
         directionView.setChecked(direction);
         isRunningLightView.setChecked(isRunningLight);
         isRainbowView.setChecked(isRainbow);
+        if (currProfile.equals("default"))
+            deleteButton.setVisibility(View.GONE);
+        else
+            deleteButton.setVisibility(View.VISIBLE);
+        isChangingProfile = false;
     }
 }

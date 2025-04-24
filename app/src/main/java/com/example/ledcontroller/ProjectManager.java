@@ -1,15 +1,22 @@
 package com.example.ledcontroller;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
@@ -26,7 +33,7 @@ import java.util.List;
 public class ProjectManager extends AppCompatActivity {
     private static final String TAG = "Project manager";
     private static final String version = "0.0";
-    private static boolean wasConnected = false;
+    public static boolean wasConnected = false;
     public static boolean isGettingSettings = false;
     public static List<String> modes = Arrays.asList("Single color", "Party", "Perlin show", "Iridescent lightsIntent");
     public static int currMode;
@@ -170,5 +177,55 @@ public class ProjectManager extends AppCompatActivity {
                 popupWindow.dismiss();
             }
         });
+    }
+    public static void showInputDialog(Context context, BluetoothFunc func) {
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_input, null);
+        EditText inputField = dialogView.findViewById(R.id.inputField);
+        Button submitButton = dialogView.findViewById(R.id.submitButton);
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Введите имя нового профиля")
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        inputField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                submitButton.setEnabled(!s.toString().trim().isEmpty());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String input = inputField.getText().toString().trim();
+                if (!input.isEmpty()) {
+                    dialog.dismiss();
+                    func.run(input);
+                }
+            }
+        });
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(inputField, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
+
+        dialog.show();
+    }
+    public static void hideKeyboard(Context context, View view){
+        view.clearFocus();
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
