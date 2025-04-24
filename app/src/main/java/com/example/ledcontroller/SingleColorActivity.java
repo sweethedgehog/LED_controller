@@ -1,11 +1,9 @@
 package com.example.ledcontroller;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -20,10 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-
-import javax.security.auth.login.LoginException;
 
 public class SingleColorActivity extends AppCompatActivity {
     private static final String TAG = "SingleColor";
@@ -35,6 +29,9 @@ public class SingleColorActivity extends AppCompatActivity {
     private static boolean twoSides, direction, isRunningLight, isRainbow;
     private static boolean isChangingProfile = false;
 
+    private ImageButton modesButton;
+    private ImageButton profilesButton;
+    private ImageButton deleteButton;
     private TextView currProfileView;
     private EditText brightnessView;
     private SeekBar brightnessSeekBar;
@@ -53,32 +50,23 @@ public class SingleColorActivity extends AppCompatActivity {
     private Switch directionView;
     private Switch isRunningLightView;
     private Switch isRainbowView;
-    private ImageButton modesButton;
-    private ImageButton profilesButton;
-    private ImageButton deleteButton;
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-
-    }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         BluetoothManager.disconnect();
         ProjectManager.wasConnected = false;
-        profiles.clear();
-        profilesNames.clear();
+        clearAll();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_color);
+
         currProfileView = findViewById(R.id.profile_text_view_single_color);
-        modesButton = findViewById(R.id.modes_button);
-        profilesButton = findViewById(R.id.profiles_button);
+        modesButton = findViewById(R.id.modes_button_single_color);
+        profilesButton = findViewById(R.id.profiles_button_single_color);
         deleteButton = findViewById(R.id.delete_profile_button_single_color);
         setProfile(currProfile);
 
@@ -143,7 +131,10 @@ public class SingleColorActivity extends AppCompatActivity {
                 ProjectManager.showPopupMenu(SingleColorActivity.this, modesButton, ProjectManager.modes, new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        Toast.makeText(SingleColorActivity.this, ProjectManager.modes.get(i), Toast.LENGTH_SHORT).show();
+//                        clearAll();
+                        saveProfileSettings(currProfile);
+                        finish();
+                        ProjectManager.setMode(i);
                     }
                 });
             }
@@ -159,6 +150,7 @@ public class SingleColorActivity extends AppCompatActivity {
                 updateAll();
             }
         });
+
         directionView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -501,7 +493,7 @@ public class SingleColorActivity extends AppCompatActivity {
         buf[9] = direction ? 1 : 0;
         buf[10] = isRunningLight ? 1 : 0;
         buf[11] = isRainbow ? 1 : 0;
-        profiles.put(currProfile, buf);
+        profiles.put(profileName, buf);
     }
     private void updateAll(){
         isChangingProfile = true;
@@ -527,5 +519,9 @@ public class SingleColorActivity extends AppCompatActivity {
         else
             deleteButton.setVisibility(View.VISIBLE);
         isChangingProfile = false;
+    }
+    private void clearAll(){
+        profiles.clear();
+        profilesNames.clear();
     }
 }

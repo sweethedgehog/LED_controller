@@ -42,7 +42,7 @@ public class ProjectManager extends AppCompatActivity {
     public static Intent partyIntent;
     public static Intent perlinShowIntent;
     public static Intent iridescentLightsIntent;
-    private static BluetoothFunc onFinnishGettingSettings;
+    private static Context context;
     private static final BluetoothFunc onNotify = new BluetoothFunc() {
         @Override
         public void run(BluetoothPeripheral peripheral, byte[] value, GattStatus status) {
@@ -56,7 +56,7 @@ public class ProjectManager extends AppCompatActivity {
                         if (index == -1) {
                             isGettingSettings = false;
                             Log.i(TAG, "finnish");
-                            onFinnishGettingSettings.run();
+                            setMode(currMode);
                             return;
                         }
                         String command = new String(Arrays.copyOfRange(value, 0, index));
@@ -143,13 +143,30 @@ public class ProjectManager extends AppCompatActivity {
             }
         }
     };
-    public static boolean initBluetooth(Activity activity, Context context, BluetoothFunc onDeviceFound,
-                                        BluetoothFunc onFinnishGettingSettings){
-        ProjectManager.onFinnishGettingSettings = onFinnishGettingSettings;
-        singleColorIntent = new Intent(context, SingleColorActivity.class);
-        partyIntent = new Intent(context, PartyActivity.class);
-        perlinShowIntent = new Intent(context, PerlinShowActivity.class);
-        iridescentLightsIntent = new Intent(context, IridescentLightsActivity.class);
+    public static void setMode(int i){
+        BluetoothManager.send(("m" + i).getBytes());
+        Intent intent;
+        switch (i) {
+            case 0:
+                intent = new Intent(context, SingleColorActivity.class);
+                break;
+            case 1:
+                intent = new Intent(context, PartyActivity.class);
+                break;
+            case 2:
+                intent = new Intent(context, PerlinShowActivity.class);
+                break;
+            case 3:
+                intent = new Intent(context, IridescentLightsActivity.class);
+                break;
+            default:
+                return;
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+    public static boolean initBluetooth(Activity activity, Context context, BluetoothFunc onDeviceFound){
+        ProjectManager.context = context;
         return BluetoothManager.init(activity, context, onDeviceFound, onNotify);
     }
     public static void showPopupMenu(Context context, View anchorView, List<String> items, AdapterView.OnItemClickListener listener) {

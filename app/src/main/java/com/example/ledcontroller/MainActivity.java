@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         public void run(BluetoothPeripheral peripheral){
             String name = peripheral.getName();
             if (!name.equals("")) {
-                Log.i(TAG, "onConnectingPeripheral: " + peripheral.getName());
+//                Log.i(TAG, "onConnectingPeripheral: " + peripheral.getName());
                 if (!devices.contains(peripheral)) {
                     devices.add(peripheral);
                     updateListView();
@@ -72,25 +72,7 @@ public class MainActivity extends AppCompatActivity {
         });
         devices = new ArrayList<>();
 
-        if (ProjectManager.initBluetooth(this, this, onDeviceFound, new BluetoothFunc() {
-            @Override
-            public void run() {
-                switch (ProjectManager.currMode){
-                    case 0:
-                        startActivity(ProjectManager.singleColorIntent);
-                        break;
-                    case 1:
-                        startActivity(ProjectManager.partyIntent);
-                        break;
-                    case 2:
-                        startActivity(ProjectManager.perlinShowIntent);
-                        break;
-                    case 3:
-                        startActivity(ProjectManager.iridescentLightsIntent);
-                        break;
-                }
-            }
-        })){
+        if (ProjectManager.initBluetooth(this, this, onDeviceFound)){
             BluetoothManager.startScan();
             initSuccess = true;
         }
