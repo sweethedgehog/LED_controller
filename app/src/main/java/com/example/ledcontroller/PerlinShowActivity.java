@@ -22,7 +22,7 @@ import java.util.HashMap;
 public class PerlinShowActivity extends AppCompatActivity {
     private static final String TAG = "PerlinShow";
     private static HashMap<String, int[]> profiles = new HashMap<>();
-    private static ArrayList<String> profilesNames = new ArrayList<>();
+    public static ArrayList<String> profilesNames = new ArrayList<>();
     public static String currProfile = "";
     private static int brightness, speed;
     private static int gridWidth, yScale, hueScale, hueOffset, saturation, gap, tailSize;
@@ -104,7 +104,7 @@ public class PerlinShowActivity extends AppCompatActivity {
         profilesNames.add(name);
         profilesNames.add("Добавить");
     }
-    private void clearAll(){
+    public static void clearAll(){
         profiles.clear();
         profilesNames.clear();
     }
@@ -158,9 +158,16 @@ public class PerlinShowActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         if (profilesNames.get(i).equals("Добавить")){
-                            ProjectManager.showInputDialog(PerlinShowActivity.this, new BluetoothFunc() {
+                            ProjectManager.showInputDialog(PerlinShowActivity.this,
+                                    "Введите имя нового профиля", new BluetoothFunc() {
                                 @Override
                                 public void run(String s) {
+                                    if (profilesNames.contains(s)){
+                                        Toast.makeText(PerlinShowActivity.this,
+                                                "Такой профиль уже существует",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
                                     BluetoothManager.send(("pn" + s).getBytes());
                                     Toast.makeText(PerlinShowActivity.this, "Создан новый профиль \""
                                             + s + "\"", Toast.LENGTH_SHORT).show();
@@ -236,6 +243,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 255;
                         brightnessView.setText(String.valueOf(buf));
                     }
+                    brightness = buf;
                     BluetoothManager.send(("sa" + buf).getBytes());
                     brightnessSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, brightnessView);
@@ -269,6 +277,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 200;
                         speedView.setText(String.valueOf(buf));
                     }
+                    speed = buf;
                     BluetoothManager.send(("sb" + buf).getBytes());
                     speedSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, speedView);
@@ -288,6 +297,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 255;
                         gridWidthView.setText(String.valueOf(buf));
                     }
+                    gridWidth = buf;
                     BluetoothManager.send(("sc" + buf).getBytes());
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, gridWidthView);
                     return true;
@@ -313,6 +323,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 255;
                         yScaleView.setText(String.valueOf(buf));
                     }
+                    yScale = buf;
                     BluetoothManager.send(("se" + buf).getBytes());
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, yScaleView);
                     return true;
@@ -328,8 +339,9 @@ public class PerlinShowActivity extends AppCompatActivity {
                     int buf = Integer.parseInt(String.valueOf(hueScaleView.getText()));
                     if (buf > 255) {
                         buf = 255;
-                        hueOffsetView.setText(String.valueOf(buf));
+                        hueScaleView.setText(String.valueOf(buf));
                     }
+                    hueScale = buf;
                     BluetoothManager.send(("sf" + buf).getBytes());
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, hueScaleView);
                     return true;
@@ -347,6 +359,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 255;
                         hueOffsetView.setText(String.valueOf(buf));
                     }
+                    hueOffset = buf;
                     BluetoothManager.send(("sg" + buf).getBytes());
                     hueOffsetSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, hueOffsetView);
@@ -380,6 +393,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 255;
                         saturationView.setText(String.valueOf(buf));
                     }
+                    saturation = buf;
                     BluetoothManager.send(("sh" + buf).getBytes());
                     saturationSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, saturationView);
@@ -421,6 +435,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 255;
                         gapView.setText(String.valueOf(buf));
                     }
+                    gap = buf;
                     BluetoothManager.send(("sj" + buf).getBytes());
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, gapView);
                     return true;
@@ -438,6 +453,7 @@ public class PerlinShowActivity extends AppCompatActivity {
                         buf = 255;
                         tailSizeView.setText(String.valueOf(buf));
                     }
+                    tailSize = buf;
                     BluetoothManager.send(("sk" + buf).getBytes());
                     ProjectManager.hideKeyboard(PerlinShowActivity.this, tailSizeView);
                     return true;

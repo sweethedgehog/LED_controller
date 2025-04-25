@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MenuActivity">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="Имя bluetooth"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="WiFi SSID"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/bluetooth_name_menu_activity"
+        app:layout_constraintTop_toBottomOf="@+id/bluetooth_name_menu_activity" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="WiFi пароль"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/wifi_ssid_menu_activity"
+        app:layout_constraintTop_toBottomOf="@+id/wifi_ssid_menu_activity" />
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="UTC"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/wifi_password_menu_activity"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <EditText
+        android:id="@+id/bluetooth_name_menu_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name"
+        android:imeOptions="flagNoEnterAction"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <EditText
+        android:id="@+id/wifi_ssid_menu_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="text"
+        android:imeOptions="flagNoEnterAction"
+        android:text="Name"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/textView12"
+        app:layout_constraintTop_toBottomOf="@+id/textView12" />
+
+    <EditText
+        android:id="@+id/wifi_password_menu_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="text"
+        android:imeOptions="flagNoEnterAction"
+        android:text="Name"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/textView15"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+    <EditText
+        android:id="@+id/time_zone_menu_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:imeOptions="flagNoEnterAction"
+        android:inputType="number"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/textView17"
+        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="176dp"
+        android:layout_height="135dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
+        android:text="Внимание!\nПри изменении этих настроек стоит перезапустить устройство. Иначе настройки не будут приняты"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/bluetooth_name_menu_activity"
+        app:layout_constraintTop_toTopOf="@+id/textView2" />
+
+    <Button
+        android:id="@+id/reboot_button_menu_activity"
+        android:layout_width="172dp"
+        android:layout_height="86dp"
+        android:layout_marginTop="24dp"
+        android:text="Перезапустить устройство"
+        app:layout_constraintEnd_toEndOf="@+id/textView16"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/textView16"
+        app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="9dp"
+        android:layout_marginTop="4dp"
+        android:adjustViewBounds="true"
+        android:focusableInTouchMode="false"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/bottom_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.515"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wifi_password_menu_activity" />
+
+    <ImageButton
+        android:id="@+id/modes_button_menu_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:src="@android:drawable/ic_menu_sort_by_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/is_on_view_menu_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Состояние ленты"
+        app:layout_constraintStart_toStartOf="@+id/time_zone_menu_activity"
+        app:layout_constraintTop_toBottomOf="@+id/time_zone_menu_activity" />
+
+    <Button
+        android:id="@+id/alarms_button_menu_activity"
+        android:layout_width="174dp"
+        android:layout_height="81dp"
+        android:layout_marginStart="16dp"
+        android:text="Будильники"
+        app:layout_constraintBottom_toBottomOf="@+id/time_zone_menu_activity"
+        app:layout_constraintStart_toEndOf="@+id/time_zone_menu_activity"
+        app:layout_constraintTop_toTopOf="@+id/time_zone_menu_activity" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

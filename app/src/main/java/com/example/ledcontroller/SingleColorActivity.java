@@ -22,7 +22,7 @@ import java.util.HashMap;
 public class SingleColorActivity extends AppCompatActivity {
     private static final String TAG = "SingleColor";
     private static HashMap<String, int[]> profiles = new HashMap<>();
-    private static ArrayList<String> profilesNames = new ArrayList<>();
+    public static ArrayList<String> profilesNames = new ArrayList<>();
     public static String currProfile;
     private static int brightness, speed;
     private static int hue, saturation, value, gap, tailSize, rainbowCount;
@@ -98,9 +98,16 @@ public class SingleColorActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         if (profilesNames.get(i).equals("Добавить")){
-                            ProjectManager.showInputDialog(SingleColorActivity.this, new BluetoothFunc() {
+                            ProjectManager.showInputDialog(SingleColorActivity.this,
+                                    "Введите имя нового профиля", new BluetoothFunc() {
                                 @Override
                                 public void run(String s) {
+                                    if (profilesNames.contains(s)){
+                                        Toast.makeText(SingleColorActivity.this,
+                                                "Такой профиль уже существует",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
                                     BluetoothManager.send(("pn" + s).getBytes());
                                     Toast.makeText(SingleColorActivity.this, "Создан новый профиль \""
                                             + s + "\"", Toast.LENGTH_SHORT).show();
@@ -187,13 +194,13 @@ public class SingleColorActivity extends AppCompatActivity {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER){
-                    ProjectManager.hideKeyboard(SingleColorActivity.this, countOfRainbowsView);
                     if (isChangingProfile) return false;
                     int buf = Integer.parseInt(String.valueOf(countOfRainbowsView.getText()));
                     if (buf > 255) {
                         buf = 255;
                         countOfRainbowsView.setText(String.valueOf(buf));
                     }
+                    rainbowCount = buf;
                     BluetoothManager.send(("sh" + buf).getBytes());
                     ProjectManager.hideKeyboard(SingleColorActivity.this, countOfRainbowsView);
                     return true;
@@ -211,6 +218,7 @@ public class SingleColorActivity extends AppCompatActivity {
                         buf = 255;
                         tailSizeView.setText(String.valueOf(buf));
                     }
+                    tailSize = buf;
                     BluetoothManager.send(("sg" + buf).getBytes());
                     ProjectManager.hideKeyboard(SingleColorActivity.this, tailSizeView);
                     return true;
@@ -228,6 +236,7 @@ public class SingleColorActivity extends AppCompatActivity {
                         buf = 255;
                         gapView.setText(String.valueOf(buf));
                     }
+                    gap = buf;
                     BluetoothManager.send(("sf" + buf).getBytes());
                     ProjectManager.hideKeyboard(SingleColorActivity.this, gapView);
                     return true;
@@ -260,6 +269,7 @@ public class SingleColorActivity extends AppCompatActivity {
                         buf = 200;
                         valueView.setText(String.valueOf(buf));
                     }
+                    value = buf;
                     BluetoothManager.send(("se" + buf).getBytes());
                     valueSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(SingleColorActivity.this, valueView);
@@ -293,6 +303,7 @@ public class SingleColorActivity extends AppCompatActivity {
                         buf = 255;
                         saturationView.setText(String.valueOf(buf));
                     }
+                    saturation = buf;
                     BluetoothManager.send(("sd" + buf).getBytes());
                     saturationSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(SingleColorActivity.this, saturationView);
@@ -326,6 +337,7 @@ public class SingleColorActivity extends AppCompatActivity {
                         buf = 255;
                         hueView.setText(String.valueOf(buf));
                     }
+                    hue = buf;
                     BluetoothManager.send(("sc" + buf).getBytes());
                     hueSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(SingleColorActivity.this, hueView);
@@ -359,6 +371,7 @@ public class SingleColorActivity extends AppCompatActivity {
                         buf = 200;
                         speedView.setText(String.valueOf(buf));
                     }
+                    speed = buf;
                     BluetoothManager.send(("sb" + buf).getBytes());
                     speedSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(SingleColorActivity.this, speedView);
@@ -392,6 +405,7 @@ public class SingleColorActivity extends AppCompatActivity {
                         buf = 255;
                         brightnessView.setText(String.valueOf(buf));
                     }
+                    brightness = buf;
                     BluetoothManager.send(("sa" + buf).getBytes());
                     brightnessSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(SingleColorActivity.this, brightnessView);
@@ -472,7 +486,7 @@ public class SingleColorActivity extends AppCompatActivity {
             deleteButton.setVisibility(View.VISIBLE);
         isChangingProfile = false;
     }
-    private void clearAll(){
+    public static void clearAll(){
         profiles.clear();
         profilesNames.clear();
     }

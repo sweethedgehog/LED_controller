@@ -23,7 +23,7 @@ import java.util.HashMap;
 public class PartyActivity extends AppCompatActivity {
     private static final String TAG = "Party";
     private static HashMap<String, int[]> profiles = new HashMap<>();
-    private static ArrayList<String> profilesNames = new ArrayList<>();
+    public static ArrayList<String> profilesNames = new ArrayList<>();
     public static String currProfile = "";
     private static int brightness, speed;
     private static int ratio, descendingStep, minSaturation, maxSaturation, minBrightness,
@@ -163,9 +163,16 @@ public class PartyActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         if (profilesNames.get(i).equals("Добавить")){
-                            ProjectManager.showInputDialog(PartyActivity.this, new BluetoothFunc() {
+                            ProjectManager.showInputDialog(PartyActivity.this,
+                                    "Введите имя нового профиля", new BluetoothFunc() {
                                 @Override
                                 public void run(String s) {
+                                    if (profilesNames.contains(s)){
+                                        Toast.makeText(PartyActivity.this,
+                                                "Такой профиль уже существует",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
                                     BluetoothManager.send(("pn" + s).getBytes());
                                     Toast.makeText(PartyActivity.this, "Создан новый профиль \""
                                             + s + "\"", Toast.LENGTH_SHORT).show();
@@ -241,6 +248,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         brightnessView.setText(String.valueOf(buf));
                     }
+                    brightness = buf;
                     BluetoothManager.send(("sa" + buf).getBytes());
                     brightnessSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, brightnessView);
@@ -274,6 +282,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 200;
                         speedView.setText(String.valueOf(buf));
                     }
+                    speed = buf;
                     BluetoothManager.send(("sb" + buf).getBytes());
                     speedSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, speedView);
@@ -293,6 +302,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         ratioView.setText(String.valueOf(buf));
                     }
+                    ratio = buf;
                     BluetoothManager.send(("sc" + buf).getBytes());
                     ProjectManager.hideKeyboard(PartyActivity.this, ratioView);
                     return true;
@@ -310,6 +320,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         descendingStepView.setText(String.valueOf(buf));
                     }
+                    descendingStep = buf;
                     BluetoothManager.send(("sd" + buf).getBytes());
                     ProjectManager.hideKeyboard(PartyActivity.this, descendingStepView);
                     return true;
@@ -327,6 +338,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         minSaturationView.setText(String.valueOf(buf));
                     }
+                    minSaturation = buf;
                     BluetoothManager.send(("se" + buf).getBytes());
                     minSaturationSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, minSaturationView);
@@ -360,6 +372,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         maxSaturationView.setText(String.valueOf(buf));
                     }
+                    maxSaturation = buf;
                     BluetoothManager.send(("sf" + buf).getBytes());
                     maxSaturationSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, maxSaturationView);
@@ -393,6 +406,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         minBrightnessView.setText(String.valueOf(buf));
                     }
+                    minBrightness = buf;
                     BluetoothManager.send(("sg" + buf).getBytes());
                     minBrightnessSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, minBrightnessView);
@@ -426,6 +440,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         maxBrightnessView.setText(String.valueOf(buf));
                     }
+                    maxBrightness = buf;
                     BluetoothManager.send(("sh" + buf).getBytes());
                     maxBrightnessSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, maxBrightnessView);
@@ -467,6 +482,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         baseStepView.setText(String.valueOf(buf));
                     }
+                    baseStep = buf;
                     BluetoothManager.send(("sj" + buf).getBytes());
                     ProjectManager.hideKeyboard(PartyActivity.this, baseStepView);
                     return true;
@@ -484,6 +500,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         minHueView.setText(String.valueOf(buf));
                     }
+                    minHue = buf;
                     BluetoothManager.send(("sk" + buf).getBytes());
                     minHueSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, minHueView);
@@ -517,6 +534,7 @@ public class PartyActivity extends AppCompatActivity {
                         buf = 255;
                         maxHueView.setText(String.valueOf(buf));
                     }
+                    maxHue = buf;
                     BluetoothManager.send(("sa" + buf).getBytes());
                     maxHueSeekBar.setProgress(buf);
                     ProjectManager.hideKeyboard(PartyActivity.this, maxHueView);
@@ -562,7 +580,7 @@ public class PartyActivity extends AppCompatActivity {
         buf[11] = maxHue;
         profiles.put(profileName, buf);
     }
-    private void clearAll(){
+    public static void clearAll(){
         profiles.clear();
         profilesNames.clear();
     }

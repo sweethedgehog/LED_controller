@@ -1,0 +1,204 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/hour_edit_text_alarm_edit"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            android:text="00"
+            android:textSize="20sp"
+            app:layout_column="0"
+            app:layout_row="0" />
+
+        <EditText
+            android:id="@+id/minute_edit_text_alarm_edit"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            android:text="00"
+            android:textSize="20sp"
+            app:layout_column="2"
+            app:layout_row="0" />
+
+        <TextView
+            android:id="@+id/textView23"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textSize="20sp"
+            app:layout_column="1"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/mode_button_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="mode"
+            app:layout_column="3"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/profile_buton_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="profile"
+            app:layout_column="4"
+            app:layout_row="0" />
+
+        <EditText
+            android:id="@+id/razing_time_alarm_edit"
+            android:layout_width="132dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Время разгара"
+            android:inputType="number"
+            android:text=""
+            app:layout_column="5"
+            app:layout_row="0" />
+    </androidx.gridlayout.widget.GridLayout>
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView24"
+            android:layout_width="46dp"
+            android:layout_height="wrap_content"
+            android:text="пн"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView26"
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:text="вт"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView27"
+            android:layout_width="46dp"
+            android:layout_height="wrap_content"
+            android:text="ср"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView28"
+            android:layout_width="46dp"
+            android:layout_height="wrap_content"
+            android:text="чт"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView29"
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:text="пт"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView30"
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:text="сб"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView31"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:text="вс"
+            android:textSize="20sp"
+            app:layout_column="6"
+            app:layout_row="0" />
+
+    </androidx.gridlayout.widget.GridLayout>
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Switch
+            android:id="@+id/monday_switch_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+        <Switch
+            android:id="@+id/tuesday_switch_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+        <Switch
+            android:id="@+id/wednesday_switch_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+        <Switch
+            android:id="@+id/thursday_switch_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+        <Switch
+            android:id="@+id/friday_switch_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+        <Switch
+            android:id="@+id/saturday_switch_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+        <Switch
+            android:id="@+id/sunday_switch_alarm_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+    </androidx.gridlayout.widget.GridLayout>
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/done_button_alarm_edit"
+            android:layout_width="113dp"
+            android:layout_height="wrap_content"
+            android:text="Готово" />
+
+        <Button
+            android:id="@+id/delete_button_alarm_edit"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Удалить"
+            app:layout_column="2"
+            app:layout_row="0" />
+
+        <Switch
+            android:id="@+id/is_on_switch_alarm_edit"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:text="вкл"
+            android:textSize="20sp"
+            app:layout_column="1"
+            app:layout_row="0" />
+    </androidx.gridlayout.widget.GridLayout>
+</LinearLayout>

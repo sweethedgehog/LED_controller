@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "BleScanner";
 
+    public static boolean isConnecting = false;
     private boolean initSuccess = false;
     private static final int REQUEST_CODE_PERMISSIONS = 1;
 
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    ImageButton refreshButton;
     ListView listView;
     ArrayList<BluetoothPeripheral> devices;
 
@@ -49,7 +54,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        isConnecting = false;
         updateListView();
+        SingleColorActivity.clearAll();
+        PartyActivity.clearAll();
+        PerlinShowActivity.clearAll();
         if (initSuccess)
             BluetoothManager.startScan();
     }
@@ -59,15 +68,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        refreshButton = findViewById(R.id.refresh_button_main_activity);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                devices.clear();
+                updateListView();
+                if (initSuccess)
+                    BluetoothManager.startScan();
+            }
+        });
         listView = findViewById(R.id.listView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.i(TAG, "onItemClick: scan stopped");
+                if (isConnecting) return;
+                isConnecting = true;
+                Log.i(TAG, "Scan stopped");
                 BluetoothManager.stopScan();
                 BluetoothManager.connect(devices.get(i));
                 devices.clear();
                 Toast.makeText(MainActivity.this, "Подключение...", Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (ProjectManager.wasConnected || ProjectManager.wasVersionError){
+                            ProjectManager.wasVersionError = false;
+                            return;
+                        }
+                        BluetoothManager.disconnect();
+                        MainActivity.isConnecting = false;
+                        updateListView();
+                        BluetoothManager.startScan();
+                        Toast.makeText(MainActivity.this, "Неподходящее устройстсво", Toast.LENGTH_SHORT).show();
+                    }
+                }, 3000);
             }
         });
         devices = new ArrayList<>();
@@ -78,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void updateListView(){
+    private void updateListView(){
         ArrayList<String> names = new ArrayList<>();
         for (BluetoothPeripheral peripheral : devices)
             names.add(peripheral.getName());

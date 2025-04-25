@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatCallback;
@@ -29,19 +32,18 @@ import com.welie.blessed.GattStatus;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
 
 public class ProjectManager extends AppCompatActivity {
     private static final String TAG = "Project manager";
-    private static final String version = "0.0";
+    private static final String version = "1.0";
     public static boolean wasConnected = false;
+    public static boolean wasVersionError = false;
     public static boolean isGettingSettings = false;
-    public static List<String> modes = Arrays.asList("Single color", "Party", "Perlin show", "Iridescent lightsIntent");
+    private static boolean isGettingAlarms;
+    public static List<String> modes = Arrays.asList("Общие настройки", "Single color", "Party", "Perlin show"/*, "Iridescent lightsIntent"*/);
     public static int currMode;
     private static int currModeSettings;
-    public static Intent singleColorIntent;
-    public static Intent partyIntent;
-    public static Intent perlinShowIntent;
-    public static Intent iridescentLightsIntent;
     private static Context context;
     private static final BluetoothFunc onNotify = new BluetoothFunc() {
         @Override
@@ -54,14 +56,35 @@ public class ProjectManager extends AppCompatActivity {
                     if (isGettingSettings){
                         int index = data.indexOf('\t');
                         if (index == -1) {
+                            if (data.equals("alarms_start")){
+                                isGettingAlarms = true;
+                                return;
+                            }
+                            isGettingAlarms = false;
                             isGettingSettings = false;
-                            Log.i(TAG, "finnish");
-                            setMode(currMode);
+                            Log.i(TAG, "finish");
+                            Intent intent = new Intent(context, MenuActivity.class);
+                            context.startActivity(intent);
                             return;
                         }
                         String command = new String(Arrays.copyOfRange(value, 0, index));
                         byte[] values = Arrays.copyOfRange(value, index + 1, value.length);
                         switch (command) {
+                            case "isOn":
+                                MenuActivity.isOn = values[0] == '1';
+                                Log.d(TAG, "is on = " + MenuActivity.isOn);
+                            case "name":
+                                MenuActivity.bluetoothName = new String(values);
+                                Log.d(TAG, "bluetooth name = " + MenuActivity.bluetoothName);
+                                break;
+                            case "ssid":
+                                MenuActivity.wifiSsid = new String(values);
+                                Log.d(TAG, "wifi ssid = " + MenuActivity.wifiSsid);
+                                break;
+                            case "password":
+                                MenuActivity.wifiPassword = new String(values);
+                                Log.d(TAG, "wifi password = " + MenuActivity.wifiPassword);
+                                break;
                             case "current_mode":
                                 currMode = values[0];
                                 Log.d(TAG, "currMode = " + currMode);
@@ -93,6 +116,10 @@ public class ProjectManager extends AppCompatActivity {
                                         break;
                                 }
                                 break;
+                            case "time_zone":
+                                MenuActivity.timeZone = values[0];
+                                Log.d(TAG, "time zone = " + MenuActivity.timeZone);
+                                break;
                             default:
                                 byte[] buf = command.getBytes();
                                 if ("profile_".equals(new String(Arrays.copyOfRange(buf, 0, 8)))) {
@@ -117,8 +144,10 @@ public class ProjectManager extends AppCompatActivity {
                                             break;
                                     }
                                 }
-//                                else if (command.equals("time_zone"))
-//                                    isGettingSettings = false;
+                                else if (isGettingAlarms){
+                                    MenuActivity.addAlarm(new String(Arrays.copyOfRange(command.getBytes(), 0, command.length() - 4)), values);
+                                    Log.d(TAG, "got new Alarm: \"" + command + "\"");
+                                }
                                 else
                                     Log.e(TAG, "Unknown command (" + command + ")");
                                 break;
@@ -133,8 +162,16 @@ public class ProjectManager extends AppCompatActivity {
                         }
                         else {
                             BluetoothManager.send(new byte[]{(byte) ('0')});
+                            wasVersionError = true;
+                            MainActivity.isConnecting = false;
+                            BluetoothManager.startScan();
+                            Toast.makeText(context, "Несовместимые версии", Toast.LENGTH_SHORT).show();
                             BluetoothManager.disconnect();
                         }
+                    }
+                    if (data.equals("alarm_activated")){
+                        Intent intent = new Intent(context, AlarmOffActivity.class);
+                        context.startActivity(intent);
                     }
                 }
             }
@@ -144,19 +181,22 @@ public class ProjectManager extends AppCompatActivity {
         }
     };
     public static void setMode(int i){
-        BluetoothManager.send(("m" + i).getBytes());
+        if (i != 0) BluetoothManager.send(("m" + (i - 1)).getBytes());
         Intent intent;
         switch (i) {
             case 0:
-                intent = new Intent(context, SingleColorActivity.class);
+                intent = new Intent(context, MenuActivity.class);
                 break;
             case 1:
-                intent = new Intent(context, PartyActivity.class);
+                intent = new Intent(context, SingleColorActivity.class);
                 break;
             case 2:
-                intent = new Intent(context, PerlinShowActivity.class);
+                intent = new Intent(context, PartyActivity.class);
                 break;
             case 3:
+                intent = new Intent(context, PerlinShowActivity.class);
+                break;
+            case 4:
                 intent = new Intent(context, IridescentLightsActivity.class);
                 break;
             default:
@@ -195,13 +235,13 @@ public class ProjectManager extends AppCompatActivity {
             }
         });
     }
-    public static void showInputDialog(Context context, BluetoothFunc func) {
+    public static void showInputDialog(Context context, String title, BluetoothFunc func) {
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_input, null);
         EditText inputField = dialogView.findViewById(R.id.inputField);
         Button submitButton = dialogView.findViewById(R.id.submitButton);
 
         AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle("Введите имя нового профиля")
+                .setTitle(title)
                 .setView(dialogView)
                 .setCancelable(false)
                 .create();
